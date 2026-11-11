@@ -6,6 +6,10 @@
 
 Headings, keywords, tables and other markup keep their regular font. Entries tagged `noprose`, such as notes, keep it for their body too.
 
+## Demo
+
+https://github.com/user-attachments/assets/53d90f7f-f6db-4d40-ac78-e1381357a9af
+
 ## Requirements
 
 - Emacs 29.1 or newer, with Org 9.7 or newer
