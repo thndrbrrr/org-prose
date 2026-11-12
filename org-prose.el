@@ -1,9 +1,10 @@
 ;;; org-prose.el --- Org minor mode for writing prose  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2026 thndrbrrr@gmail.com
+;; Copyright (C) 2026 thndrbrrr
 
-;; Author: thndrbrrr@gmail.com
-;; Maintainer: thndrbrrr@gmail.com
+;; Author: thndrbrrr <thndrbrrr@gmail.com>
+;; Assisted-by: Claude:claude-opus-5-5
+;; Maintainer: thndrbrrr <thndrbrrr@gmail.com>
 ;; Version: 0.1.0
 ;; Package-Requires: ((emacs "29.1") (org "9.7") (olivetti "2.0"))
 ;; URL: https://github.com/thndrbrrr/org-prose
@@ -309,8 +310,9 @@ It applies to `org-prose-fixed-faces' other than headings, and to
   :group 'org-prose)
 
 (defun org-prose--heading-faces ()
-  "Return the faces of headings, which a preview theme's heading face sets.
-They are those of `org-level-faces' and `org-document-title'."
+  "Return the faces of headings.
+They are those of `org-level-faces' and `org-document-title'.  A
+preview theme's heading face sets their attributes."
   (cons 'org-document-title org-level-faces))
 
 (defun org-prose--fixed-faces ()
@@ -323,7 +325,8 @@ They are those of headings and `org-prose-fixed-faces'."
   "Types of elements whose child paragraphs get indented.")
 
 (defconst org-prose--sample-text
-  "The evening light fell across the quiet harbour as she turned, at last, toward home."
+  (concat "The evening light fell across the quiet harbour "
+          "as she turned, at last, toward home.")
   "Text used to measure the average character width of `org-prose-body'.")
 
 (defvar-local org-prose--remap-cookies nil
@@ -405,7 +408,7 @@ changed lines.  Added to `after-change-functions'."
        (not (org-prose--noprose-p))))
 
 (defun org-prose--indent-string ()
-  "Return the string that indents a line of body text.
+  "Return the indentation string for a line of body text.
 It is in the `default' face: redisplay would draw it in the face of
 the text it comes before, such as that of code."
   (propertize (make-string org-prose-paragraph-indent ?\s) 'face 'default))
@@ -686,7 +689,7 @@ any, merged on top."
     (org-prose--string-pixel-width-as-displayed string window)))
 
 (defun org-prose--folded-p (pos)
-  "Return non-nil if the heading at POS is folded and shows an ellipsis.
+  "Return non-nil if the heading at POS is folded with an ellipsis.
 Its line then ends in invisible text that the buffer's invisibility
 spec replaces with an ellipsis.  Evaluated by redisplay, in the buffer
 it displays."
@@ -867,7 +870,7 @@ character."
     widths))
 
 (defun org-prose--line-number-width (window)
-  "Return the width in pixels of the line numbers WINDOW shows, or 0.
+  "Return the width in pixels of the line numbers in WINDOW, or 0.
 They are displayed in the text area, see `display-line-numbers'.  The
 width is that of the last redisplay of WINDOW."
   (if (buffer-local-value 'display-line-numbers (window-buffer window))
@@ -932,7 +935,8 @@ WIDTH is the width in pixels that the text can fill."
                     (aref sums (- beg bol))
                     (org-prose--string-pixel-width
                      (make-string org-prose-paragraph-indent ?\s) window)))
-          (wrap-avail (- width (org-prose--prefix-width 'wrap-prefix beg window)))
+          (wrap-avail
+           (- width (org-prose--prefix-width 'wrap-prefix beg window)))
           (x 0)
           line)
       (dolist (word words)
@@ -987,7 +991,7 @@ Added to `org-indent-post-buffer-init-functions'."
         (org-prose--refresh-justification)))))
 
 (defun org-prose--justify-after-resize (window)
-  "Lay out the preview again if WINDOW, which shows it, changed width.
+  "Lay out the preview again if its window WINDOW changed width.
 That justifies body text and aligns heading tags again.  Added to
 `window-size-change-functions' in preview buffers."
   (when (and (eq window (org-prose--preview-window))
@@ -1098,7 +1102,7 @@ changed.  Added to `enable-theme-functions' and
         (org-prose--update-faces)))))
 
 (defun org-prose--face-family (face frame &optional depth)
-  "Return the font family FACE sets on FRAME, or nil.
+  "Return the font family of FACE on FRAME, or nil.
 That is its :family, else that of the faces it inherits, other than
 `default', whose family is that of body text.  The buffer's face
 remapping, as by `mixed-pitch-mode', counts too.  DEPTH counts the
@@ -1165,9 +1169,10 @@ body text keeps the default font"))
                             ,@(and (stringp foreground)
                                    (list :foreground foreground)))))
           org-prose--remap-cookies)
-    (dolist (face (seq-union (org-prose--fixed-faces)
-                             (seq-filter #'facep
-                                         (mapcar #'car (org-prose--theme-overrides)))))
+    (dolist (face (seq-union
+                   (org-prose--fixed-faces)
+                   (seq-filter #'facep
+                               (mapcar #'car (org-prose--theme-overrides)))))
       (when-let* ((specs `(,@(org-prose--theme-specs face)
                            ,@(and (memq face fixed)
                                   `((:family ,family))))))
@@ -1425,7 +1430,7 @@ its entry: headings start with their last star."
                   (if role (format "-%s" role) ""))))
 
 (defun org-prose--theme-overrides ()
-  "Return the attributes the page of `org-prose--preview-theme' sets.
+  "Return the attributes set by the page of `org-prose--preview-theme'.
 They are for faces that the Emacs theme gives a color of its own that
 must match the page, as a list of (FACE . PLIST).  Return nil if the
 buffer is not a preview frame's."
