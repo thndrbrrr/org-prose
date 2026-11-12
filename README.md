@@ -6,6 +6,9 @@
 
 Headings, keywords, tables and other markup keep their regular font. Entries tagged `noprose`, such as notes, keep it for their body too.
 
+> [!NOTE]
+> [Claude](https://claude.ai) wrote most of it, while I spent decades in software engineering learning what to make, what to keep, and what to throw away. ¯\\_(ツ)\_/¯
+
 ## Demo
 
 https://github.com/user-attachments/assets/53d90f7f-f6db-4d40-ac78-e1381357a9af
