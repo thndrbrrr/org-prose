@@ -67,7 +67,7 @@ While org-prose-mode is on:
 
 ### Preview
 
-`M-x org-prose-toggle-preview` shows the buffer like a typeset book page. It sets all text at 24pt (`org-prose-preview-font-height`) and narrows the body with Olivetti to about 70 characters per line (`org-prose-preview-width`). Body text is justified: the spaces between words are widened so that every line of a paragraph but its last reaches the right margin. Comment lines (`# ...`) are hidden; `M-x org-prose-preview-toggle-comments` shows or hides them again in the buffer. Turning the preview off restores the text size and Olivetti as they were.
+`M-x org-prose-toggle-preview` shows the buffer like a typeset book page. It sets body text at 24pt (`org-prose-preview-font-height`), while headings, markup and `noprose` entries keep their regular size, and narrows the body with Olivetti to about 70 characters per line (`org-prose-preview-width`). Body text is justified: the spaces between words are widened so that every line of a paragraph but its last reaches the right margin. Comment lines (`# ...`) are hidden; `M-x org-prose-preview-toggle-comments` shows or hides them again in the buffer. Turning the preview off restores the text size and Olivetti as they were.
 
 Body text in the preview is set in `org-prose-preview-body` on top of `org-prose-body`, so it can have a color of its own; see [Faces](#faces).
 
@@ -99,7 +99,7 @@ All options live under `M-x customize-group RET org-prose RET`.
 - **`org-prose-visual-line`** – Whether `org-prose-mode` turns on `visual-line-mode` (on by default).
 - **`org-prose-noprose-tag`** – The tag of entries that aren't prose (`"noprose"`).
 - **`org-prose-curly-quotes`** – Whether typed quotes become curly ones (on by default). It takes effect the next time `org-prose-mode` is turned on. See [Quotes](#quotes).
-- **`org-prose-preview-font-height`** – The height of the text in the preview, in 1/10 pt (240), or, as a float, relative to the `default` face.
+- **`org-prose-preview-font-height`** – The height of body text in the preview, in 1/10 pt (240), or, as a float, relative to the `default` face. Headings, markup and `noprose` entries keep their regular height.
 - **`org-prose-preview-width`** – About how many characters of body text fit on a line in the preview (70).
 - **`org-prose-preview-justify`** – Whether the preview justifies body text (on by default). It works in graphical frames only.
 - **`org-prose-preview-hide-comments`** – Whether the preview hides comment lines (on by default).

@@ -45,7 +45,8 @@
 ;;   regular font and are not indented, e.g. for notes.
 ;;
 ;; `org-prose-preview-mode' (toggled with `org-prose-toggle-preview')
-;; sets the text at `org-prose-preview-font-height' (24pt) and uses
+;; sets body text at `org-prose-preview-font-height' (24pt), headings,
+;; markup and noprose entries keeping their regular size, and uses
 ;; Olivetti to narrow the body to about
 ;; `org-prose-preview-width' characters per line, so the text reads
 ;; like a typeset book page.  It justifies body text, widening the
@@ -156,7 +157,7 @@ set a family of their own keep it."
 An integer is a height in 1/10 pt, a float one relative to the
 `default' face, such as 1.4 for 40% larger.  Headings, markup and the
 body of noprose entries keep their regular height.
-`org-prose-preview-mode' sets all text at
+`org-prose-preview-mode' sets body text at
 `org-prose-preview-font-height' instead."
   :type '(choice (natnum :tag "In 1/10 pt")
                  (float :tag "Relative to the default font"))
@@ -195,9 +196,11 @@ on."
   :group 'org-prose)
 
 (defcustom org-prose-preview-font-height 240
-  "Height of the text in `org-prose-preview-mode'.
+  "Height of body text in `org-prose-preview-mode'.
 An integer is a height in 1/10 pt, a float one relative to the
-`default' face, such as 1.7 for 70% larger."
+`default' face, such as 1.7 for 70% larger.  Headings, markup and the
+body of noprose entries keep their regular height, as outside the
+preview."
   :type '(choice (natnum :tag "In 1/10 pt")
                  (float :tag "Relative to the default font"))
   :group 'org-prose)
@@ -1238,26 +1241,27 @@ body text keeps the default font"))
 
 (defun org-prose--update-heights ()
   "Set body text at `org-prose-body-font-height'.
+In preview, set it at `org-prose-preview-font-height' instead.
 Headings, markup and noprose entries keep their regular height.  Do
-nothing but undo that if `org-prose-mode' is off or
-`org-prose-preview-mode' is on, which sets the height of all text."
+nothing but undo that if `org-prose-mode' is off."
   (mapc #'face-remap-remove-relative org-prose--height-cookies)
   (setq org-prose--height-cookies nil)
-  (when-let* (((and org-prose-mode (not org-prose-preview-mode)))
+  (when-let* ((org-prose-mode)
               (frame (org-prose--graphic-frame)))
-    (let ((frame-height (face-attribute 'default :height frame))
+    (let ((body-height (if org-prose-preview-mode
+                           org-prose-preview-font-height
+                         org-prose-body-font-height))
+          (frame-height (face-attribute 'default :height frame))
           (scale (if (bound-and-true-p text-scale-mode)
                      (expt text-scale-mode-step text-scale-mode-amount)
                    1)))
       (cond
-       ((floatp org-prose-body-font-height)
-        (push (face-remap-add-relative
-               'default :height org-prose-body-font-height)
+       ((floatp body-height)
+        (push (face-remap-add-relative 'default :height body-height)
               org-prose--height-cookies))
        ((integerp frame-height)
         (push (face-remap-add-relative
-               'default :height
-               (/ (float org-prose-body-font-height) frame-height))
+               'default :height (/ (float body-height) frame-height))
               org-prose--height-cookies)))
       (dolist (face (cons 'org-prose-noprose (org-prose--fixed-faces)))
         (when-let* ((height (face-attribute face :height frame 'default))
@@ -1397,7 +1401,8 @@ character width of the body text at `org-prose-preview-font-height'."
 ;;;###autoload
 (define-minor-mode org-prose-preview-mode
   "Show the buffer like a typeset book page.
-Sets the text at `org-prose-preview-font-height' and narrows the
+Sets body text at `org-prose-preview-font-height', headings, markup
+and noprose entries keeping their regular height, and narrows the
 body to about `org-prose-preview-width' characters using Olivetti.
 Every line starts at the left edge of the page, whatever the level of
 its entry: headings start with their last star."
@@ -1407,13 +1412,11 @@ its entry: headings start with their last star."
     (require 'olivetti)
     (unless org-prose-mode
       (org-prose-mode 1))
-    ;; Add `org-prose-preview-body' to the body faces, before setting
-    ;; the height, which must take precedence.
+    ;; Add `org-prose-preview-body' to the body faces and set body
+    ;; text at the preview height.
     (org-prose--update-faces)
     (setq org-prose--preview-saved
-          (list :remap (face-remap-add-relative
-                        'default :height org-prose-preview-font-height)
-                :olivetti olivetti-mode
+          (list :olivetti olivetti-mode
                 :olivetti-width olivetti-body-width))
     ;; Enable Olivetti before setting the width; its mode hooks may set
     ;; a width of their own.
@@ -1440,7 +1443,6 @@ its entry: headings start with their last star."
       (remove-overlays nil nil 'org-prose 'lead)
       (remove-overlays nil nil 'org-prose 'justify)
       (remove-overlays nil nil 'org-prose 'tags)
-      (face-remap-remove-relative (plist-get saved :remap))
       (org-prose--update-faces)
       (setq olivetti-body-width (plist-get saved :olivetti-width))
       (if (plist-get saved :olivetti)
