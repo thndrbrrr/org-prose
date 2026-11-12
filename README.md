@@ -100,6 +100,7 @@ All options live under `M-x customize-group RET org-prose RET`.
 - **`org-prose-preview-width`** – About how many characters of body text fit on a line in the preview (70).
 - **`org-prose-preview-justify`** – Whether the preview justifies body text (on by default). It works in graphical frames only.
 - **`org-prose-preview-hide-comments`** – Whether the preview hides comment lines (on by default).
+- **`org-prose-preview-fix-line-moves`** – Whether to work around an Emacs bug that makes moving up by screen lines skip a line in justified text (on by default). The workaround advises `vertical-motion` in preview buffers; turn it off if it gets in the way.
 - **`org-prose-preview-frame-theme`** – The default theme of the preview frame, `light` or `dark` (`light`).
 - **`org-prose-preview-frame-ignore-theme`** – Whether the faces of the preview frame have the default colors of Emacs instead of those of your theme (on by default).
 - **`org-prose-preview-frame-width`** – The width of the preview frame, in columns of the frame's default font, as with the `width` frame parameter (140).

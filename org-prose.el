@@ -5,7 +5,7 @@
 ;; Author: thndrbrrr <thndrbrrr@gmail.com>
 ;; Assisted-by: Claude:claude-opus-5-5
 ;; Maintainer: thndrbrrr <thndrbrrr@gmail.com>
-;; Version: 0.1.0
+;; Version: 0.1.1
 ;; Package-Requires: ((emacs "29.1") (org "9.7") (olivetti "2.0"))
 ;; URL: https://github.com/thndrbrrr/org-prose
 ;; Keywords: outlines, wp
@@ -213,6 +213,17 @@ The spaces between words are widened so that every line of a
 paragraph but its last fills the width of the page.  Only lines that
 `org-prose-mode' indents are justified, in graphical frames with
 `word-wrap' on."
+  :type 'boolean
+  :group 'org-prose)
+
+(defcustom org-prose-preview-fix-line-moves t
+  "Non-nil means work around Emacs moving up too far in the preview.
+Emacs miscounts the screen lines of justified text, so commands that
+move up by screen lines, such as `previous-line' and Evil's visual
+line motions, can skip one.  The workaround is advice on
+`vertical-motion', added when `org-prose-preview-mode' is first turned
+on, that only acts in preview buffers.  If nil, the advice does
+nothing and is not added."
   :type 'boolean
   :group 'org-prose)
 
@@ -973,7 +984,39 @@ WIDTH is the width in pixels that the text can fill."
       (let ((first (nth 2 line)))
         (when (< (nth 0 first) (nth 1 first))
           (org-prose--make-overlay (nth 0 first) (nth 1 first) 'justify
-                                     'display '(space :width (0))))))))
+                                     'display '(space :width (0))
+                                     'org-prose-break t))))))
+
+;; Emacs miscounts screen lines when moving up across these breaks.  To
+;; find where a screen line starts, the display engine moves to it from
+;; the start of the text line, and when it arrives just after a stretch,
+;; the gap at the break, it takes the position as reached before seeing
+;; that the word there starts the next screen line.  `vertical-motion'
+;; then moves up two screen lines instead of one, as do the commands
+;; built on it, such as `previous-line' and Evil's visual line motions.
+;; That check is only made when the text is reordered for bidirectional
+;; display, which doesn't change the layout of left-to-right text.
+
+(defun org-prose--vertical-motion (fn lines &optional window &rest args)
+  "Call FN, `vertical-motion', with LINES, WINDOW and ARGS.
+In a preview, work around Emacs moving too far up across the breaks of
+justified lines, see above.  Added as `:around' advice."
+  (if (and org-prose-preview-fix-line-moves
+           org-prose-preview-mode
+           (eq (window-buffer (or window (selected-window)))
+               (current-buffer))
+           (not (eq (current-bidi-paragraph-direction) 'right-to-left)))
+      (progn
+        ;; The gap at a break has no width and Emacs would take it to
+        ;; start the next screen line, so start from the end of the word
+        ;; before it, at the end of the same screen line.
+        (when-let* ((break (seq-find (lambda (ov)
+                                       (overlay-get ov 'org-prose-break))
+                                     (overlays-at (point)))))
+          (goto-char (max (point-min) (1- (overlay-start break)))))
+        (let ((bidi-display-reordering nil))
+          (apply fn lines window args)))
+    (apply fn lines window args)))
 
 (defun org-prose--refresh-justification ()
   "Justify the body text again in the buffers sharing this buffer's text."
@@ -1382,6 +1425,8 @@ its entry: headings start with their last star."
               #'org-prose--check-width-later nil t)
     (add-hook 'org-indent-post-buffer-init-functions
               #'org-prose--justify-after-org-indent)
+    (when org-prose-preview-fix-line-moves
+      (advice-add 'vertical-motion :around #'org-prose--vertical-motion))
     (org-prose--set-preview-width))
    (org-prose--preview-saved
     (let ((saved org-prose--preview-saved))
@@ -1645,6 +1690,12 @@ the buffer deletes the frame."
             (org-prose--set-preview-width)
           (org-prose-preview-mode 1))))
     (select-frame-set-input-focus frame)))
+
+(defun org-prose-unload-function ()
+  "Remove the advice that `org-prose-preview-mode' adds.
+Called by `unload-feature'; return nil to unload the rest as usual."
+  (advice-remove 'vertical-motion #'org-prose--vertical-motion)
+  nil)
 
 (provide 'org-prose)
 ;;; org-prose.el ends here
