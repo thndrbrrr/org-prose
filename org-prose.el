@@ -163,7 +163,7 @@ body of noprose entries keep their regular height.
                  (float :tag "Relative to the default font"))
   :group 'org-prose)
 
-(defcustom org-prose-paragraph-indent 4
+(defcustom org-prose-paragraph-indent 5
   "Number of spaces to indent each line of body text by."
   :type 'natnum
   :group 'org-prose)

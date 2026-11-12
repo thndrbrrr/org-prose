@@ -95,7 +95,7 @@ All options live under `M-x customize-group RET org-prose RET`.
 - **`org-prose-body-families`** – The fonts for body text, in order of preference; the first one installed is used (EB Garamond, Libre Caslon Text, Baskerville, Libre Baskerville, Palatino, Georgia).
 - **`org-prose-body-font-height`** – The height of body text outside the preview, in 1/10 pt (200), or, as a float, relative to the `default` face, such as 1.4. Headings, markup and `noprose` entries keep their regular height.
 - **`org-prose-fixed-faces`**, **`org-prose-fixed-family`** – The faces that keep the regular font, besides those of headings (`org-level-faces`), and that font (the family of the `default` face if nil). Faces that set a font family of their own keep it.
-- **`org-prose-paragraph-indent`** – How many spaces body text is indented by (4).
+- **`org-prose-paragraph-indent`** – How many spaces body text is indented by (5).
 - **`org-prose-visual-line`** – Whether `org-prose-mode` turns on `visual-line-mode` (on by default).
 - **`org-prose-noprose-tag`** – The tag of entries that aren't prose (`"noprose"`).
 - **`org-prose-curly-quotes`** – Whether typed quotes become curly ones (on by default). It takes effect the next time `org-prose-mode` is turned on. See [Quotes](#quotes).
