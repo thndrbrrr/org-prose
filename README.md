@@ -4,7 +4,7 @@
 
 `org-prose` is a minor mode for writing prose in Org. Entry bodies are set in a serif font, every paragraph is indented like a book's, and quotes are typed curly. A preview shows the text enlarged and justified on a narrow page, so it reads as if it were typeset.
 
-Headings, keywords, tables and other markup keep their regular font. Entries tagged `noprose`, such as notes, keep it for their body too.
+Headings, keywords, tables and other markup keep their regular font. Entries tagged `noprose`, such as notes, keep it for their body too. A document that is mostly not prose can turn that around and tag only its prose entries `prose`.
 
 > [!NOTE]
 > [Claude](https://claude.ai) wrote most of it, while I spent decades in software engineering learning what to make, what to keep, and what to throw away. ¯\\_(ツ)\_/¯
@@ -63,7 +63,17 @@ While org-prose-mode is on:
 - **Serif body text.** Entry bodies are set in `org-prose-body`, in the first font of `org-prose-body-families` that is installed: EB Garamond, else Libre Caslon Text, Baskerville, Libre Baskerville, Palatino or Georgia. Body text is 20pt (`org-prose-body-font-height`). Headings and the faces in `org-prose-fixed-faces`, for markup and line numbers, keep the regular font and size. Faces that your theme or another mode gives a font of their own, such as headings in a proportional font, keep it.
 - **Indented paragraphs.** Every line of body text is indented by `org-prose-paragraph-indent` spaces, whether a blank line comes before it or not. Write each paragraph as one line and let `visual-line-mode` wrap it: wrapped lines aren't indented after the wrap, but lines filled with `M-q` or `auto-fill-mode` are each indented. List items, drawers and blocks other than quote and center blocks aren't indented.
 - **Curly quotes.** Typed `'` and `"` become curly quotes, with `'` at the start of a word an opening one. Emacs's own `electric-quote-mode` does the curling; see [Quotes](#quotes).
-- **Entries that aren't prose.** The body of an entry tagged `noprose` keeps the regular font and foreground and isn't indented. Sub-entries inherit the tag as `org-use-tag-inheritance` says.
+- **Entries that aren't prose.** The body of an entry tagged `noprose` keeps the regular font and foreground and isn't indented. Sub-entries inherit the tag as `org-use-tag-inheritance` says. An entry tagged `prose` is prose again, it and its sub-entries, within an entry tagged `noprose`. Of the two tags, the one nearest to the entry decides.
+- **Documents that are mostly not prose.** For a document such as one of instructions with writing exercises, put `#+FILETAGS: noprose` at its top and tag the exercises `prose`. After adding or changing the line, press `C-c C-c` on it so Org reads it again; that restarts Org mode, so if you turned on `org-prose-mode` with `M-x`, turn it on again. This needs tag inheritance, which is on by default: neither tag should be in `org-tags-exclude-from-inheritance`.
+
+  ```org
+  #+FILETAGS: noprose
+
+  * Lesson 1
+  Read the passage, then write a scene of your own.
+  ** Exercise                                                           :prose:
+  The evening light fell across the quiet harbour…
+  ```
 
 ### Preview
 
@@ -98,6 +108,7 @@ All options live under `M-x customize-group RET org-prose RET`.
 - **`org-prose-paragraph-indent`** – How many spaces body text is indented by (5).
 - **`org-prose-visual-line`** – Whether `org-prose-mode` turns on `visual-line-mode` (on by default).
 - **`org-prose-noprose-tag`** – The tag of entries that aren't prose (`"noprose"`).
+- **`org-prose-prose-tag`** – The tag of entries that are prose within ones that aren't (`"prose"`).
 - **`org-prose-curly-quotes`** – Whether typed quotes become curly ones (on by default). It takes effect the next time `org-prose-mode` is turned on. See [Quotes](#quotes).
 - **`org-prose-preview-font-height`** – The height of body text in the preview, in 1/10 pt (240), or, as a float, relative to the `default` face. Headings, markup and `noprose` entries keep their regular height.
 - **`org-prose-preview-width`** – About how many characters of body text fit on a line in the preview (70).

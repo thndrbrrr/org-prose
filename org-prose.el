@@ -42,7 +42,11 @@
 ;; - Typed ' and " become curly quotes, except in code
 ;;   (`org-prose-curly-quotes').
 ;; - Entries tagged "noprose" (`org-prose-noprose-tag') keep the
-;;   regular font and are not indented, e.g. for notes.
+;;   regular font and are not indented, e.g. for notes.  Entries
+;;   tagged "prose" (`org-prose-prose-tag') are prose again, so a
+;;   document that is mostly not prose, such as one of instructions
+;;   with writing exercises, can set "#+FILETAGS: noprose" and tag
+;;   only the exercises "prose".  The tag nearest to an entry wins.
 ;;
 ;; `org-prose-preview-mode' (toggled with `org-prose-toggle-preview')
 ;; sets body text at `org-prose-preview-font-height' (24pt), headings,
@@ -141,7 +145,18 @@ headings, or the `fixed-pitch' faces of `mixed-pitch-mode'."
 (defcustom org-prose-noprose-tag "noprose"
   "Tag for entries whose body is not prose.
 Their body keeps the regular font and is not indented.  Subentries
-inherit the tag as set by `org-use-tag-inheritance'."
+inherit the tag as set by `org-use-tag-inheritance', as they do
+`org-prose-prose-tag': of the two, the one nearest to the entry
+decides.  With \"#+FILETAGS: noprose\" no entry is prose unless
+tagged `org-prose-prose-tag'."
+  :type 'string
+  :group 'org-prose)
+
+(defcustom org-prose-prose-tag "prose"
+  "Tag for entries whose body is prose within ones that are not.
+It undoes an `org-prose-noprose-tag' inherited from a parent entry or
+from #+FILETAGS, for the entry and its subentries.  Of the two tags,
+the one nearest to the entry decides; an entry with neither is prose."
   :type 'string
   :group 'org-prose)
 
@@ -382,8 +397,18 @@ See `org-prose--graphic-frame'.")
 ;;;; Noprose entries
 
 (defun org-prose--noprose-p ()
-  "Return non-nil if point is in an entry tagged `org-prose-noprose-tag'."
-  (member org-prose-noprose-tag (ignore-errors (org-get-tags))))
+  "Return non-nil if point is in an entry whose body is not prose.
+That is one tagged `org-prose-noprose-tag', directly or by
+inheritance, unless `org-prose-prose-tag' is nearer to it.
+`org-get-tags' lists file tags first, then those of parent entries
+from the outermost, then the entry's own, so the last of the two
+tags in its list is the nearest."
+  (let (last)
+    (dolist (tag (ignore-errors (org-get-tags)))
+      (when (or (equal tag org-prose-noprose-tag)
+                (equal tag org-prose-prose-tag))
+        (setq last tag)))
+    (equal last org-prose-noprose-tag)))
 
 (defun org-prose--match-noprose (limit)
   "Match the next body of a noprose entry before LIMIT.
