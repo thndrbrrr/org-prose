@@ -64,7 +64,7 @@ While org-prose-mode is on:
 - **Indented paragraphs.** Every line of body text is indented by `org-prose-paragraph-indent` spaces, whether a blank line comes before it or not. Write each paragraph as one line and let `visual-line-mode` wrap it: wrapped lines aren't indented after the wrap, but lines filled with `M-q` or `auto-fill-mode` are each indented. List items, drawers and blocks other than quote and center blocks aren't indented.
 - **Curly quotes.** Typed `'` and `"` become curly quotes, with `'` at the start of a word an opening one. Emacs's own `electric-quote-mode` does the curling; see [Quotes](#quotes).
 - **Entries that aren't prose.** The body of an entry tagged `noprose` keeps the regular font and foreground and isn't indented. Sub-entries inherit the tag as `org-use-tag-inheritance` says. An entry tagged `prose` is prose again, it and its sub-entries, within an entry tagged `noprose`. Of the two tags, the one nearest to the entry decides.
-- **Documents that are mostly not prose.** For a document such as one of instructions with writing exercises, put `#+FILETAGS: noprose` at its top and tag the exercises `prose`. After adding or changing the line, press `C-c C-c` on it so Org reads it again; that restarts Org mode, so if you turned on `org-prose-mode` with `M-x`, turn it on again. This needs tag inheritance, which is on by default: neither tag should be in `org-tags-exclude-from-inheritance`.
+- **Documents that are mostly not prose.** For a document that is mostly not prose, put `#+FILETAGS: noprose` at its top. That turns org-prose from opt-out to opt-in: now only entries tagged `prose`, and their sub-entries, are set as prose.
 
   ```org
   #+FILETAGS: noprose
